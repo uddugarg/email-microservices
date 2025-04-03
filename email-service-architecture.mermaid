@@ -1,0 +1,48 @@
+flowchart TB
+    subgraph "Frontend Layer"
+        UI[User Interface]
+    end
+    
+    subgraph "API Layer"
+        API[REST API] 
+        AUTH[Authentication]
+        RATE[Rate Limiter]
+    end
+    
+    subgraph "Service Layer"
+        EMAIL[Email Service]
+        CRED[Credential Service]
+        VALID[Email Validator]
+        QUEUE[Queue Orchestrator]
+        QUOTA[Quota Manager]
+    end
+    
+    subgraph "Infrastructure"
+        KAFKA[Apache Kafka]
+        ZOOKEEPER[Zookeeper]
+        POSTGRES[PostgreSQL]
+        REDIS[Redis]
+    end
+    
+    subgraph "Email Providers"
+        GMAIL[Gmail API]
+        OUTLOOK[Outlook API]
+    end
+    
+    UI --> API
+    API --> AUTH
+    API --> RATE
+    API --> EMAIL
+    API --> CRED
+    
+    EMAIL --> VALID
+    EMAIL --> QUEUE
+    EMAIL --> QUOTA
+    
+    QUEUE <--> KAFKA
+    KAFKA --> ZOOKEEPER
+    CRED <--> POSTGRES
+    QUOTA <--> REDIS
+    
+    EMAIL --> GMAIL
+    EMAIL --> OUTLOOK

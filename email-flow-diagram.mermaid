@@ -1,0 +1,35 @@
+sequenceDiagram
+    participant C as Client
+    participant A as API
+    participant Q as Queue
+    participant E as Email Service
+    participant V as Validator
+    participant QM as Quota Manager
+    participant P as Provider (Gmail/Outlook)
+    
+    C->>A: Send Email Request
+    A->>Q: Publish SendEmail Event
+    Q->>E: Consume Event
+    E->>E: Resolve Email Address
+    E->>V: Validate Email
+    alt Email Invalid
+        V-->>E: Reject
+        E-->>C: Notify Invalid Email
+    else Email Valid
+        V-->>E: Valid
+        E->>QM: Check Quota
+        alt Quota Exceeded
+            QM-->>E: Reject
+            E->>Q: Requeue with Delay
+        else Quota Available
+            QM-->>E: Approve
+            E->>P: Send Email
+            alt Email Sent Successfully
+                P-->>E: Success
+                E-->>C: Notify Success
+            else Sending Failed
+                P-->>E: Failure
+                E->>Q: Requeue with Delay
+            end
+        end
+    end
